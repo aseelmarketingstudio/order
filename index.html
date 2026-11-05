@@ -257,8 +257,7 @@ button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 22px
 <div class="bar"><div class="in">
   <div class="msg" id="msg">الحقول اللي عليها * مطلوبة</div>
   <div class="btns">
-    <button type="button" class="btn-s" id="copy">نسخ البيانات</button>
-    <button type="button" class="btn-p" id="dl">تحميل ملف الطلب</button>
+    <button type="button" class="btn-p" id="send">إرسال الطلب بالإيميل</button>
   </div>
 </div></div>
 <div class="toast" id="toast"></div>
@@ -352,17 +351,29 @@ function validate(){
   m.textContent='تمام، البيانات كاملة';m.className='msg';return true;
 }
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
-$('#dl').onclick=()=>{
+
+const TO='aseelmarketingstudio@gmail.com';
+$('#send').onclick=()=>{
   if(!validate())return;
   const b=build();
   const slug=(b.brand.name||'brief').replace(/[^\p{L}\p{N}]+/gu,'-').replace(/^-|-$/g,'')||'brief';
+  const full=JSON.stringify(b,null,2);
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([JSON.stringify(b,null,2)],{type:'application/json'}));
-  a.download=slug+'.brief.json';a.click();toast('نزّل ملف الطلب');
-};
-$('#copy').onclick=async()=>{
-  if(!validate())return;
-  try{await navigator.clipboard.writeText(JSON.stringify(build(),null,2));toast('انسخت البيانات')}catch(e){toast('تعذّر النسخ، استخدم التحميل')}
+  a.href=URL.createObjectURL(new Blob([full],{type:'application/json'}));a.download=slug+'.brief.json';a.click();
+  const lite=JSON.parse(full); if(lite.brand.logo)lite.brand.logo='(مرفق بملف الطلب)'; if(lite.content.productImage)lite.content.productImage='(مرفق بملف الطلب)';
+  const lines=[
+    'طلب فيديو جديد','',
+    'الاسم: '+b.client.name,'الهاتف: '+b.client.phone,'الإيميل: '+b.client.email,'',
+    'البراند: '+b.brand.name,'القالب: '+TPL[b.template],
+    'العنوان: '+b.content.headline, b.content.subheadline?'العنوان الفرعي: '+b.content.subheadline:'',
+    b.content.contact?'التواصل: '+b.content.contact:'',
+    'اللهجة: '+b.dialect,'المقاسات: '+b.sizes.join(' · '),'المدة: '+b.duration+' ثانية',
+    b.notes?'ملاحظات: '+b.notes:'','',
+    'مهم: أرفق هنا ملف الطلب الذي نزل على جهازك ('+slug+'.brief.json) مع الشعار وصور المنتجات.'
+  ].filter(x=>x!==undefined&&x!==null);
+  const url='mailto:'+TO+'?subject='+encodeURIComponent('طلب فيديو - '+(b.brand.name||b.client.name))+'&body='+encodeURIComponent(lines.join('\n'));
+  toast('نزّل ملف الطلب، أرفقه بالإيميل اللي رح يفتح');
+  setTimeout(()=>{location.href=url},700);
 };
 syncCards();preview();
 </script>
