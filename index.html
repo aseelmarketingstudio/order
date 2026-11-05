@@ -157,6 +157,12 @@ button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 22px
         <div class="full"><label>العنوان الرئيسي <span class="req">*</span></label><input type="text" name="headline" required maxlength="60" placeholder="مثال: قهوتك الصباحية بنكهة جديدة"><div class="hint">حتى 60 حرف</div></div>
         <div class="full"><label>جملة داعمة <span class="opt">(اختياري)</span></label><input type="text" name="subheadline" maxlength="90"></div>
         <div class="full"><label>معلومات إضافية <span class="opt">(اختياري)</span></label><textarea name="extra" rows="3" style="font-size:13px" placeholder="أي تفاصيل بدك تظهر أو نعرفها، مثل السعر أو رقم التواصل أو العنوان"></textarea></div>
+        <div class="full"><label>صور للفيديو <span class="opt">(اختياري، حتى 4 صور)</span></label>
+          <div class="drop" id="photoDrop"><span>اسحب الصور هون أو اضغط للاختيار</span></div>
+          <input type="file" id="photoFile" accept="image/png,image/jpeg,image/webp" multiple hidden>
+          <div id="photoList" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+          <div class="hint">منتجات، فريق، مكان، أو أي صورة بدك تظهر بالفيديو</div>
+        </div>
 
         <div class="cond" data-for="product-ad"></div>
         <div class="cond" data-for="discount">
@@ -303,6 +309,24 @@ function readLogo(fl){
   const r=new FileReader();r.onload=()=>{logoData=r.result;drop.innerHTML=`<img src="${logoData}" alt=""><span>${fl.name} — اضغط للتغيير</span>`;preview()};r.readAsDataURL(fl);
 }
 
+let photos=[];
+const phDrop=$('#photoDrop'),phFile=$('#photoFile');
+phDrop.onclick=()=>phFile.click();
+['dragover','dragenter'].forEach(e=>phDrop.addEventListener(e,ev=>{ev.preventDefault();phDrop.classList.add('over')}));
+['dragleave','drop'].forEach(e=>phDrop.addEventListener(e,ev=>{ev.preventDefault();phDrop.classList.remove('over')}));
+phDrop.addEventListener('drop',ev=>addPhotos([...ev.dataTransfer.files]));
+phFile.onchange=()=>{addPhotos([...phFile.files]);phFile.value=''};
+function addPhotos(fl){
+  for(const fl1 of fl){
+    if(photos.length>=4){toast('الحد الأقصى 4 صور');break}
+    if(fl1.size>8*1024*1024){toast('صورة كبيرة، الحد 8MB');continue}
+    const r=new FileReader();r.onload=()=>{photos.push(r.result);renderPhotos()};r.readAsDataURL(fl1);
+  }
+}
+function renderPhotos(){
+  $('#photoList').innerHTML=photos.map((d,i)=>`<div style="position:relative"><img src="${d}" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:10px"><button type="button" data-i="${i}" style="position:absolute;top:-6px;left:-6px;width:22px;height:22px;border-radius:50%;border:0;background:#c0392b;color:#fff;cursor:pointer">×</button></div>`).join('');
+  $$('#photoList button').forEach(b=>b.onclick=()=>{photos.splice(+b.dataset.i,1);renderPhotos()});
+}
 function build(){
   const t=val('template'),sizes=$$('input[name=size]:checked').map(i=>i.value);
   const points=[1,2,3,4,5].map(i=>val('pt'+i)).filter(Boolean);
@@ -315,7 +339,7 @@ function build(){
       autoColors:f.elements.autoColors.checked,
       colors:{primary:val('cPrimary'),secondary:val('cSecondary'),accent:val('cAccent'),bg:val('cBg')}},
     content:{headline:val('headline'),subheadline:val('subheadline'),cta:val('cta'),contact:val('contact'),
-      extra:val('extra'),
+      extra:val('extra'),photos:photos.slice(),
       discount:val('discount'),validUntil:val('validUntil'),code:val('code'),points},
     language:val('language'),dialect,
     voice:{mode:f.elements.voiceMode.value,gender:val('voiceGender'),script:val('script')},
@@ -337,14 +361,14 @@ function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');se
 
 const TO='aseelmarketingstudio@gmail.com';
 const KEY='1f051f04-9063-4f44-b20e-9e2497db002f';
-function shrink(src,max=480){return new Promise(res=>{const im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);let o=c.toDataURL('image/webp',.85);if(!o.startsWith('data:image/webp'))o=c.toDataURL('image/png');res(o)};im.onerror=()=>res(null);im.src=src})}
+function shrink(src,max=400,q=.75){return new Promise(res=>{const im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);let o=c.toDataURL('image/webp',q);if(!o.startsWith('data:image/webp'))o=c.toDataURL('image/png');res(o)};im.onerror=()=>res(null);im.src=src})}
 function summary(b){return [
   'طلب فيديو جديد','',
   'الاسم: '+b.client.name,'إنستغرام: '+b.client.instagram,'الإيميل: '+b.client.email,'',
   'البراند: '+b.brand.name,'القالب: '+TPL[b.template],
   'العنوان: '+b.content.headline, b.content.subheadline?'العنوان الفرعي: '+b.content.subheadline:'',
   b.content.contact?'التواصل: '+b.content.contact:'',
-  b.content.extra?'معلومات إضافية: '+b.content.extra:'',
+  b.content.extra?'معلومات إضافية: '+b.content.extra:'',b.content.photos&&b.content.photos.length?'عدد الصور: '+b.content.photos.length:'',
   'اللهجة: '+b.dialect,'المقاسات: '+b.sizes.join(' · '),'المدة: '+b.duration+' ثانية',
   b.notes?'ملاحظات: '+b.notes:''].filter(x=>x!==undefined&&x!==null).join('\n')}
 $('#send').onclick=async()=>{
@@ -352,6 +376,7 @@ $('#send').onclick=async()=>{
   const btn=$('#send'); btn.disabled=true; const old=btn.textContent; btn.textContent='جاري الإرسال...';
   const b=build(); const full=JSON.parse(JSON.stringify(b));
   if(b.brand.logo) b.brand.logo=await shrink(b.brand.logo)||b.brand.logo;
+  b.content.photos=(await Promise.all(b.content.photos.map(x=>shrink(x,560,.7)))).filter(Boolean);
   const slug='order-'+new Date().toISOString().slice(0,16).replace(/[-:T]/g,'');
   const subj='طلب فيديو - '+(b.brand.name||b.client.name);
   const text=summary(b);
