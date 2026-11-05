@@ -356,7 +356,7 @@ const TO='aseelmarketingstudio@gmail.com';
 $('#send').onclick=()=>{
   if(!validate())return;
   const b=build();
-  const slug=(b.brand.name||'brief').replace(/[^\p{L}\p{N}]+/gu,'-').replace(/^-|-$/g,'')||'brief';
+  const slug='order-'+new Date().toISOString().slice(0,16).replace(/[-:T]/g,'');
   const full=JSON.stringify(b,null,2);
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([full],{type:'application/json'}));a.download=slug+'.brief.json';a.click();
