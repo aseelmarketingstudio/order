@@ -336,30 +336,51 @@ function validate(){
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
 
 const TO='aseelmarketingstudio@gmail.com';
-$('#send').onclick=()=>{
+const KEY='1f051f04-9063-4f44-b20e-9e2497db002f';
+function shrink(src,max=480){return new Promise(res=>{const im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);let o=c.toDataURL('image/webp',.85);if(!o.startsWith('data:image/webp'))o=c.toDataURL('image/png');res(o)};im.onerror=()=>res(null);im.src=src})}
+function summary(b){return [
+  'طلب فيديو جديد','',
+  'الاسم: '+b.client.name,'إنستغرام: '+b.client.instagram,'الإيميل: '+b.client.email,'',
+  'البراند: '+b.brand.name,'القالب: '+TPL[b.template],
+  'العنوان: '+b.content.headline, b.content.subheadline?'العنوان الفرعي: '+b.content.subheadline:'',
+  b.content.contact?'التواصل: '+b.content.contact:'',
+  b.content.extra?'معلومات إضافية: '+b.content.extra:'',
+  'اللهجة: '+b.dialect,'المقاسات: '+b.sizes.join(' · '),'المدة: '+b.duration+' ثانية',
+  b.notes?'ملاحظات: '+b.notes:''].filter(x=>x!==undefined&&x!==null).join('\n')}
+$('#send').onclick=async()=>{
   if(!validate())return;
-  const b=build();
+  const btn=$('#send'); btn.disabled=true; const old=btn.textContent; btn.textContent='جاري الإرسال...';
+  const b=build(); const full=JSON.parse(JSON.stringify(b));
+  if(b.brand.logo) b.brand.logo=await shrink(b.brand.logo)||b.brand.logo;
   const slug='order-'+new Date().toISOString().slice(0,16).replace(/[-:T]/g,'');
-  const full=JSON.stringify(b,null,2);
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([full],{type:'application/json'}));a.download=slug+'.brief.json';a.click();
-  const lite=JSON.parse(full); if(lite.brand.logo)lite.brand.logo='(مرفق بملف الطلب)'; 
-  const lines=[
-    'طلب فيديو جديد','',
-    'الاسم: '+b.client.name,'إنستغرام: '+b.client.instagram,'الإيميل: '+b.client.email,'',
-    'البراند: '+b.brand.name,'القالب: '+TPL[b.template],
-    'العنوان: '+b.content.headline, b.content.subheadline?'العنوان الفرعي: '+b.content.subheadline:'',
-    b.content.contact?'التواصل: '+b.content.contact:'',
-    'اللهجة: '+b.dialect,'المقاسات: '+b.sizes.join(' · '),'المدة: '+b.duration+' ثانية',
-    b.content.extra?'معلومات إضافية: '+b.content.extra:'',b.notes?'ملاحظات: '+b.notes:'','',
-    'مهم: أرفق هنا ملف الطلب الذي نزل على جهازك ('+slug+'.brief.json) مع الشعار وصور المنتجات.'
-  ].filter(x=>x!==undefined&&x!==null);
-  const subj='طلب فيديو - '+(b.brand.name||b.client.name), body=lines.join('\n');
-  const mail='mailto:'+TO+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
-  const gm='https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(TO)+'&su='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
-  showSend({mail,gm,subj,body,slug});
+  const subj='طلب فيديو - '+(b.brand.name||b.client.name);
+  const text=summary(b);
+  const payload={access_key:KEY,subject:subj,from_name:'فورم الطلبات',name:b.client.name,email:b.client.email,
+    message:text+'\n\n===BRIEF-JSON===\n'+JSON.stringify(b)};
+  try{
+    const r=await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(payload)});
+    const j=await r.json(); if(!j.success) throw new Error(j.message||'fail');
+    showDone();
+  }catch(e){
+    btn.disabled=false; btn.textContent=old;
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(full,null,2)],{type:'application/json'}));a.download=slug+'.brief.json';a.click();
+    const mail='mailto:'+TO+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(text);
+    const gm='https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(TO)+'&su='+encodeURIComponent(subj)+'&body='+encodeURIComponent(text);
+    showSend({mail,gm,subj,body:text,slug});
+    return;
+  }
+  btn.disabled=false; btn.textContent=old;
 };
-
+function showDone(){
+  let m=$('#sendModal'); if(m)m.remove();
+  m=document.createElement('div'); m.id='sendModal';
+  m.style.cssText='position:fixed;inset:0;background:#0008;display:grid;place-items:center;z-index:99;padding:16px';
+  m.innerHTML=`<div style="background:#fff;color:#222;border-radius:16px;max-width:420px;width:100%;padding:26px;text-align:center;line-height:1.8">
+    <div style="font-size:42px">✅</div><h3 style="margin:4px 0">وصلنا طلبك</h3>
+    <p style="margin:0 0 14px;font-size:15px">بنراجعه وبنتواصل معك على إنستغرام أو الإيميل بأقرب وقت.</p>
+    <button type="button" class="btn-p" id="okDone" style="padding:12px 28px;border-radius:12px">تمام</button></div>`;
+  document.body.appendChild(m); $('#okDone').onclick=()=>m.remove();
+}
 function showSend(o){
   let m=$('#sendModal'); if(m)m.remove();
   m=document.createElement('div'); m.id='sendModal';
