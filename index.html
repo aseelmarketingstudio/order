@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>طلب فيديو موشن جرافيك</title>
+<style>
+@font-face{font-family:"Cairo";font-weight:400;src:url(../assets/fonts/cairo-arabic-400-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE80-FEFC}
+@font-face{font-family:"Cairo";font-weight:700;src:url(../assets/fonts/cairo-arabic-700-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE80-FEFC}
+@font-face{font-family:"Cairo";font-weight:800;src:url(../assets/fonts/cairo-arabic-800-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE80-FEFC}
+@font-face{font-family:"Cairo";font-weight:400;src:url(../assets/fonts/cairo-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Cairo";font-weight:700;src:url(../assets/fonts/cairo-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Cairo";font-weight:800;src:url(../assets/fonts/cairo-latin-800-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
+:root{
+  --bg:#0f1420; --panel:#171e2e; --panel2:#1d2639; --line:#2a3550; --text:#eef2fb; --mute:#9aa7c4;
+  --accent:#ffb454; --accent2:#5ad1b0; --danger:#ff6b6b; --radius:16px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:"Cairo",system-ui,sans-serif;line-height:1.6;min-height:100vh}
+.wrap{max-width:1180px;margin:0 auto;padding:32px 20px 120px}
+header.top{display:flex;align-items:center;gap:14px;margin-bottom:28px}
+.mark{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#ff7a5c);display:grid;place-items:center;color:#1a1206;font-weight:800;font-size:22px}
+header.top h1{font-size:26px;margin:0;font-weight:800}
+header.top p{margin:0;color:var(--mute);font-size:14px}
+.layout{display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start}
+@media(max-width:980px){.layout{grid-template-columns:1fr}.aside{position:static!important}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:18px}
+.card h2{margin:0 0 4px;font-size:18px;font-weight:800;display:flex;align-items:center;gap:10px}
+.card h2 .n{width:28px;height:28px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);display:grid;place-items:center;font-size:14px;color:var(--accent)}
+.card .sub{color:var(--mute);font-size:13.5px;margin:0 0 18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+.full{grid-column:1/-1}
+label{display:block;font-size:13.5px;font-weight:700;margin-bottom:6px}
+label .opt{color:var(--mute);font-weight:400}
+label .req{color:var(--danger)}
+input[type=text],input[type=tel],input[type=url],input[type=number],input[type=email],select,textarea{
+  width:100%;background:var(--panel2);border:1.5px solid var(--line);border-radius:12px;color:var(--text);
+  padding:11px 14px;font:inherit;font-size:15px;outline:none;transition:border-color .15s, box-shadow .15s}
+textarea{min-height:92px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,180,84,.15)}
+input.bad,textarea.bad,select.bad{border-color:var(--danger)}
+.hint{font-size:12.5px;color:var(--mute);margin-top:5px}
+.tpl{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:640px){.tpl{grid-template-columns:1fr}}
+.opt-card{position:relative;border:1.5px solid var(--line);background:var(--panel2);border-radius:14px;padding:16px;cursor:pointer;transition:.15s;text-align:center}
+.opt-card:hover{border-color:#43527a}
+.opt-card input{position:absolute;opacity:0;pointer-events:none}
+.opt-card.on{border-color:var(--accent);background:rgba(255,180,84,.08);box-shadow:0 0 0 3px rgba(255,180,84,.12)}
+.opt-card .ic{font-size:30px;line-height:1.2}
+.opt-card b{display:block;margin-top:6px;font-size:15px}
+.opt-card span{display:block;color:var(--mute);font-size:12.5px;margin-top:2px}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{border:1.5px solid var(--line);background:var(--panel2);border-radius:999px;padding:8px 16px;cursor:pointer;font-size:14px;font-weight:700;user-select:none;transition:.15s;display:inline-flex;gap:8px;align-items:center}
+.chip input{display:none}
+.chip.on{border-color:var(--accent2);background:rgba(90,209,176,.1);color:var(--accent2)}
+.colors{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:640px){.colors{grid-template-columns:repeat(2,1fr)}}
+.colors label{font-size:12.5px}
+.colors input[type=color]{width:100%;height:46px;border:1.5px solid var(--line);border-radius:12px;background:var(--panel2);padding:4px;cursor:pointer}
+.drop{border:2px dashed var(--line);border-radius:14px;padding:18px;text-align:center;cursor:pointer;color:var(--mute);font-size:14px;transition:.15s}
+.drop:hover,.drop.over{border-color:var(--accent);color:var(--text)}
+.drop img{max-height:70px;max-width:160px;display:block;margin:0 auto 8px;border-radius:8px}
+.cond{display:none}.cond.show{display:contents}
+.pts{display:grid;gap:10px}
+.aside{position:sticky;top:20px}
+.pv{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.pv h3{margin:0 0 12px;font-size:15px;font-weight:800}
+.pvbox{border-radius:14px;aspect-ratio:9/16;max-height:420px;margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:18px;text-align:center;overflow:hidden;position:relative}
+.pvbox .lg{max-width:46%;max-height:46px;object-fit:contain}
+.pvbox .h{font-weight:800;font-size:22px;line-height:1.3}
+.pvbox .s{font-size:13px;opacity:.85}
+.pvbox .btn{padding:8px 18px;border-radius:999px;font-weight:800;font-size:13px}
+.pvmeta{display:flex;justify-content:space-between;color:var(--mute);font-size:12.5px;margin-top:12px}
+.sum{margin-top:14px;display:grid;gap:6px;font-size:13px;color:var(--mute)}
+.sum b{color:var(--text)}
+.bar{position:fixed;inset-inline:0;bottom:0;background:rgba(15,20,32,.92);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:14px 20px;z-index:10}
+.bar .in{max-width:1180px;margin:0 auto;display:flex;gap:12px;align-items:center;justify-content:space-between}
+.bar .msg{color:var(--mute);font-size:13.5px}
+.bar .msg.err{color:var(--danger)}
+button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 22px;font-weight:800;font-size:15px}
+.btn-p{background:linear-gradient(135deg,var(--accent),#ff8f5c);color:#1a1206}
+.btn-s{background:var(--panel2);color:var(--text);border:1.5px solid var(--line)}
+.btns{display:flex;gap:10px}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--accent2);color:#06221a;padding:10px 20px;border-radius:12px;font-weight:800;opacity:0;pointer-events:none;transition:.25s;z-index:20}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="mark">▶</div>
+    <div>
+      <h1>طلب فيديو موشن جرافيك</h1>
+      <p>عبّي البيانات وبنجهّز لك الفيديو بمقاسات المنصات اللي بتختارها</p>
+    </div>
+  </header>
+
+  <form id="f" class="layout" autocomplete="off" novalidate>
+  <main>
+
+    <section class="card">
+      <h2><span class="n">1</span> بيانات الزبون</h2>
+      <p class="sub">لنقدر نتواصل معك ونسلّمك الفيديو.</p>
+      <div class="grid">
+        <div><label>الاسم <span class="req">*</span></label><input type="text" name="clientName" required></div>
+        <div><label>رقم الواتساب <span class="req">*</span></label><input type="tel" name="clientPhone" required placeholder="+970 5X XXX XXXX" dir="ltr" style="text-align:right"></div>
+        <div class="full"><label>البريد الإلكتروني <span class="opt">(اختياري)</span></label><input type="email" name="clientEmail" dir="ltr" style="text-align:right"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">2</span> نوع الفيديو</h2>
+      <p class="sub">اختار القالب الأقرب لهدفك.</p>
+      <div class="tpl" id="tpl">
+        <label class="opt-card on"><input type="radio" name="template" value="product-ad" checked><div class="ic">🛍️</div><b>إعلان منتج</b><span>عرض منتج بصورته وسعره</span></label>
+        <label class="opt-card"><input type="radio" name="template" value="discount"><div class="ic">🏷️</div><b>عرض وخصم</b><span>نسبة خصم ومدة وكود</span></label>
+        <label class="opt-card"><input type="radio" name="template" value="service"><div class="ic">💡</div><b>شرح خدمة</b><span>نقاط ومزايا بالتتابع</span></label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">3</span> هوية البراند</h2>
+      <p class="sub">الألوان والشعار بيطلعوا بنفس هويتك بالضبط.</p>
+      <div class="grid">
+        <div><label>اسم البراند <span class="req">*</span></label><input type="text" name="brandName" required></div>
+        <div><label>الخط</label>
+          <select name="font">
+            <option value="cairo">Cairo — عصري وواضح</option>
+            <option value="tajawal">Tajawal — نظيف وخفيف</option>
+            <option value="almarai">Almarai — رسمي وهادئ</option>
+            <option value="plex">IBM Plex Arabic — تقني</option>
+          </select>
+        </div>
+        <div class="full"><label>الشعار <span class="opt">(PNG بخلفية شفافة أفضل)</span></label>
+          <div class="drop" id="logoDrop"><span id="logoTxt">اسحب الشعار هون أو اضغط للاختيار</span></div>
+          <input type="file" id="logoFile" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden>
+        </div>
+        <div class="full"><label>ألوان البراند</label>
+          <div class="colors">
+            <div><label>الأساسي</label><input type="color" name="cPrimary" value="#ff6a3d"></div>
+            <div><label>الثانوي</label><input type="color" name="cSecondary" value="#1f2a44"></div>
+            <div><label>التمييز</label><input type="color" name="cAccent" value="#ffc93c"></div>
+            <div><label>الخلفية</label><input type="color" name="cBg" value="#fff7ee"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">4</span> محتوى الفيديو</h2>
+      <p class="sub">نصوص قصيرة أفضل: كل جملة بتظهر على الشاشة بوقتها.</p>
+      <div class="grid">
+        <div class="full"><label>العنوان الرئيسي <span class="req">*</span></label><input type="text" name="headline" required maxlength="60" placeholder="مثال: قهوتك الصباحية بنكهة جديدة"><div class="hint">حتى 60 حرف</div></div>
+        <div class="full"><label>جملة داعمة <span class="opt">(اختياري)</span></label><input type="text" name="subheadline" maxlength="90"></div>
+
+        <div class="cond" data-for="product-ad">
+          <div class="full"><label>صورة المنتج <span class="opt">(PNG بخلفية شفافة أفضل)</span></label>
+            <div class="drop" id="prodDrop"><span>اسحب صورة المنتج هون أو اضغط للاختيار</span></div>
+            <input type="file" id="prodFile" accept="image/png,image/jpeg,image/webp" hidden>
+          </div>
+          <div><label>السعر</label><input type="text" name="price" placeholder="مثال: 49 ₪"></div>
+          <div><label>السعر قبل الخصم <span class="opt">(اختياري)</span></label><input type="text" name="oldPrice" placeholder="مثال: 69 ₪"></div>
+        </div>
+        <div class="cond" data-for="discount">
+          <div><label>قيمة الخصم <span class="req">*</span></label><input type="text" name="discount" placeholder="مثال: 30%"></div>
+          <div><label>صالح حتى <span class="opt">(اختياري)</span></label><input type="text" name="validUntil" placeholder="مثال: نهاية الشهر"></div>
+          <div class="full"><label>كود الخصم <span class="opt">(اختياري)</span></label><input type="text" name="code" dir="ltr" style="text-align:right" placeholder="SAVE30"></div>
+        </div>
+        <div class="cond" data-for="service">
+          <div class="full"><label>نقاط الخدمة <span class="opt">(3 إلى 5)</span></label>
+            <div class="pts">
+              <input type="text" name="pt1" maxlength="48" placeholder="النقطة 1">
+              <input type="text" name="pt2" maxlength="48" placeholder="النقطة 2">
+              <input type="text" name="pt3" maxlength="48" placeholder="النقطة 3">
+              <input type="text" name="pt4" maxlength="48" placeholder="النقطة 4 (اختياري)">
+              <input type="text" name="pt5" maxlength="48" placeholder="النقطة 5 (اختياري)">
+            </div>
+          </div>
+        </div>
+
+        <div><label>نص زر الدعوة <span class="req">*</span></label><input type="text" name="cta" required maxlength="28" placeholder="اطلب الآن"></div>
+        <div><label>رقم أو رابط للتواصل <span class="req">*</span></label><input type="text" name="contact" required dir="ltr" style="text-align:right" placeholder="059xxxxxxx أو brand.ps"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">5</span> الصوت واللهجة</h2>
+      <p class="sub">بنكتب السكربت باللهجة اللي بتختارها وبنرسله لك للموافقة قبل التنفيذ.</p>
+      <div class="grid">
+        <div><label>لغة النص</label>
+          <select name="language"><option value="ar">العربية</option><option value="en">English</option></select>
+        </div>
+        <div><label>أي لهجة بتفضّل؟</label>
+          <select name="dialect" id="dialect">
+            <option value="msa">فصحى مبسّطة</option>
+            <option value="levantine">عامية شامية</option>
+            <option value="egyptian">عامية مصرية</option>
+            <option value="gulf">عامية خليجية</option>
+            <option value="maghrebi">عامية مغاربية</option>
+            <option value="custom">لهجة ثانية (بكتبها)</option>
+          </select>
+        </div>
+        <div class="full" id="dialectCustomWrap" style="display:none"><label>اكتب اللهجة المطلوبة</label><input type="text" name="dialectCustom"></div>
+        <div class="full"><label>التعليق الصوتي</label>
+          <div class="chips" id="voiceModes">
+            <label class="chip on"><input type="radio" name="voiceMode" value="tts" checked>🎙️ صوت جاهز بالذكاء الاصطناعي</label>
+            <label class="chip"><input type="radio" name="voiceMode" value="upload">⬆️ بدي صوت بشري من عندي</label>
+            <label class="chip"><input type="radio" name="voiceMode" value="none">🔇 بدون تعليق (موسيقى ونصوص)</label>
+          </div>
+        </div>
+        <div class="full" id="voiceGenderWrap"><label>نوع الصوت</label>
+          <select name="voiceGender"><option value="any">أي صوت مناسب</option><option value="male">رجالي</option><option value="female">نسائي</option></select>
+        </div>
+        <div class="full"><label>سكربت جاهز <span class="opt">(اختياري، وإذا فاضي بنكتبه نحنا)</span></label><textarea name="script"></textarea></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">6</span> المقاسات والمدة</h2>
+      <p class="sub">كل مقاس بنصدّره بتركيب مناسب إله، مش مجرد قصّ.</p>
+      <div class="grid">
+        <div class="full"><label>المقاسات المطلوبة</label>
+          <div class="chips" id="sizes">
+            <label class="chip on"><input type="checkbox" name="size" value="9:16" checked>📱 9:16 ريلز وتيك توك</label>
+            <label class="chip"><input type="checkbox" name="size" value="1:1">⬜ 1:1 فيسبوك وانستغرام</label>
+            <label class="chip"><input type="checkbox" name="size" value="16:9">🖥️ 16:9 يوتيوب وموقع</label>
+          </div>
+        </div>
+        <div><label>المدة</label>
+          <select name="duration"><option value="10">10 ثواني</option><option value="15" selected>15 ثانية</option><option value="20">20 ثانية</option><option value="30">30 ثانية</option></select>
+        </div>
+        <div><label>ملاحظات إضافية <span class="opt">(اختياري)</span></label><input type="text" name="notes"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <aside class="aside">
+    <div class="pv">
+      <h3>معاينة سريعة للهوية</h3>
+      <div class="pvbox" id="pvbox">
+        <img class="lg" id="pvlogo" alt="" hidden>
+        <div class="h" id="pvh">عنوان الفيديو</div>
+        <div class="s" id="pvs"></div>
+        <div class="btn" id="pvb">اطلب الآن</div>
+      </div>
+      <div class="pvmeta"><span id="pvtpl">إعلان منتج</span><span id="pvdur">15 ثانية</span></div>
+      <div class="sum" id="sum"></div>
+    </div>
+  </aside>
+  </form>
+</div>
+
+<div class="bar"><div class="in">
+  <div class="msg" id="msg">الحقول اللي عليها * مطلوبة</div>
+  <div class="btns">
+    <button type="button" class="btn-s" id="copy">نسخ البيانات</button>
+    <button type="button" class="btn-p" id="dl">تحميل ملف الطلب</button>
+  </div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const f=$('#f'); let logoData=null;
+const TPL={'product-ad':'إعلان منتج','discount':'عرض وخصم','service':'شرح خدمة'};
+const DIAL={msa:'فصحى مبسّطة',levantine:'عامية شامية',egyptian:'عامية مصرية',gulf:'عامية خليجية',maghrebi:'عامية مغاربية'};
+const val=n=>{const e=f.elements[n];return e?String(e.value||'').trim():''};
+
+function syncCards(){
+  $$('.opt-card').forEach(c=>c.classList.toggle('on',c.querySelector('input').checked));
+  $$('.chip').forEach(c=>c.classList.toggle('on',c.querySelector('input').checked));
+  const t=f.elements.template.value;
+  $$('.cond').forEach(c=>c.classList.toggle('show',c.dataset.for===t));
+  $('#dialectCustomWrap').style.display=val('dialect')==='custom'?'block':'none';
+  $('#voiceGenderWrap').style.display=f.elements.voiceMode.value==='tts'?'block':'none';
+}
+function preview(){
+  const p=val('cPrimary'),s=val('cSecondary'),a=val('cAccent'),bg=val('cBg');
+  const box=$('#pvbox'); box.style.background=bg; box.style.color=s;
+  $('#pvh').textContent=val('headline')||'عنوان الفيديو';
+  $('#pvs').textContent=val('subheadline');
+  const b=$('#pvb'); b.textContent=val('cta')||'اطلب الآن'; b.style.background=p; b.style.color=lum(p)>.55?'#111':'#fff';
+  $('#pvh').style.color=s; $('#pvh').style.textShadow=`0 3px 0 ${a}55`;
+  const lg=$('#pvlogo'); if(logoData){lg.src=logoData;lg.hidden=false}else lg.hidden=true;
+  $('#pvtpl').textContent=TPL[f.elements.template.value];
+  $('#pvdur').textContent=val('duration')+' ثانية';
+  const sizes=$$('input[name=size]:checked').map(i=>i.value).join(' · ')||'—';
+  const d=val('dialect')==='custom'?(val('dialectCustom')||'—'):DIAL[val('dialect')];
+  $('#sum').innerHTML=`<div>المقاسات: <b>${sizes}</b></div><div>اللهجة: <b>${d}</b></div>`;
+}
+function lum(h){const n=parseInt(h.slice(1),16),r=n>>16&255,g=n>>8&255,b=n&255;return (0.299*r+0.587*g+0.114*b)/255}
+
+f.addEventListener('input',()=>{syncCards();preview()});
+f.addEventListener('change',()=>{syncCards();preview()});
+
+// logo
+const drop=$('#logoDrop'),file=$('#logoFile');
+drop.onclick=()=>file.click();
+['dragover','dragenter'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.add('over')}));
+['dragleave','drop'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.remove('over')}));
+drop.addEventListener('drop',ev=>{if(ev.dataTransfer.files[0])readLogo(ev.dataTransfer.files[0])});
+file.onchange=()=>file.files[0]&&readLogo(file.files[0]);
+function readLogo(fl){
+  if(fl.size>4*1024*1024){toast('الشعار كبير، الحد 4MB');return}
+  const r=new FileReader();r.onload=()=>{logoData=r.result;drop.innerHTML=`<img src="${logoData}" alt=""><span>${fl.name} — اضغط للتغيير</span>`;preview()};r.readAsDataURL(fl);
+}
+
+// product image
+let productData=null;
+const pdrop=$('#prodDrop'),pfile=$('#prodFile');
+pdrop.onclick=()=>pfile.click();
+['dragover','dragenter'].forEach(e=>pdrop.addEventListener(e,ev=>{ev.preventDefault();pdrop.classList.add('over')}));
+['dragleave','drop'].forEach(e=>pdrop.addEventListener(e,ev=>{ev.preventDefault();pdrop.classList.remove('over')}));
+pdrop.addEventListener('drop',ev=>{if(ev.dataTransfer.files[0])readProduct(ev.dataTransfer.files[0])});
+pfile.onchange=()=>pfile.files[0]&&readProduct(pfile.files[0]);
+function readProduct(fl){
+  if(fl.size>6*1024*1024){toast('الصورة كبيرة، الحد 6MB');return}
+  const r=new FileReader();r.onload=()=>{productData=r.result;pdrop.innerHTML=`<img src="${productData}" alt=""><span>${fl.name} — اضغط للتغيير</span>`};r.readAsDataURL(fl);
+}
+
+function build(){
+  const t=val('template'),sizes=$$('input[name=size]:checked').map(i=>i.value);
+  const points=[1,2,3,4,5].map(i=>val('pt'+i)).filter(Boolean);
+  const dialect=val('dialect')==='custom'?val('dialectCustom'):DIAL[val('dialect')];
+  return {
+    version:1, createdAt:new Date().toISOString(),
+    client:{name:val('clientName'),phone:val('clientPhone'),email:val('clientEmail')},
+    template:t,
+    brand:{name:val('brandName'),logo:logoData,font:val('font'),
+      colors:{primary:val('cPrimary'),secondary:val('cSecondary'),accent:val('cAccent'),bg:val('cBg')}},
+    content:{headline:val('headline'),subheadline:val('subheadline'),cta:val('cta'),contact:val('contact'),
+      productImage:t==='product-ad'?productData:null,
+      price:val('price'),oldPrice:val('oldPrice'),discount:val('discount'),validUntil:val('validUntil'),code:val('code'),points},
+    language:val('language'),dialect,
+    voice:{mode:f.elements.voiceMode.value,gender:val('voiceGender'),script:val('script')},
+    sizes,duration:Number(val('duration')),notes:val('notes')
+  };
+}
+function validate(){
+  const miss=[];
+  $$('[required]').forEach(e=>{const bad=!e.value.trim();e.classList.toggle('bad',bad);if(bad)miss.push(e)});
+  const t=val('template');
+  if(t==='discount'&&!val('discount')){const e=f.elements.discount;e.classList.add('bad');miss.push(e)}
+  if(!$$('input[name=size]:checked').length){miss.push($('#sizes'))}
+  if(t==='service'&&[1,2,3].filter(i=>val('pt'+i)).length<3){miss.push(f.elements.pt1);f.elements.pt1.classList.add('bad')}
+  const m=$('#msg');
+  if(miss.length){m.textContent='في '+miss.length+' حقول ناقصة، راجعها';m.className='msg err';miss[0].scrollIntoView({behavior:'smooth',block:'center'});return false}
+  m.textContent='تمام، البيانات كاملة';m.className='msg';return true;
+}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
+$('#dl').onclick=()=>{
+  if(!validate())return;
+  const b=build();
+  const slug=(b.brand.name||'brief').replace(/[^\p{L}\p{N}]+/gu,'-').replace(/^-|-$/g,'')||'brief';
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(b,null,2)],{type:'application/json'}));
+  a.download=slug+'.brief.json';a.click();toast('نزّل ملف الطلب');
+};
+$('#copy').onclick=async()=>{
+  if(!validate())return;
+  try{await navigator.clipboard.writeText(JSON.stringify(build(),null,2));toast('انسخت البيانات')}catch(e){toast('تعذّر النسخ، استخدم التحميل')}
+};
+syncCards();preview();
+</script>
+</body>
+</html>
