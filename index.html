@@ -106,8 +106,8 @@ button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 22px
       <p class="sub">لنقدر نتواصل معك ونسلّمك الفيديو.</p>
       <div class="grid">
         <div><label>الاسم <span class="req">*</span></label><input type="text" name="clientName" required></div>
-        <div><label>رقم الواتساب <span class="req">*</span></label><input type="tel" name="clientPhone" required placeholder="+970 5X XXX XXXX" dir="ltr" style="text-align:right"></div>
-        <div class="full"><label>البريد الإلكتروني <span class="opt">(اختياري)</span></label><input type="email" name="clientEmail" dir="ltr" style="text-align:right"></div>
+        <div><label>رابط حسابك على إنستغرام <span class="req">*</span></label><input type="text" name="clientIg" required placeholder="instagram.com/اسم_الحساب" dir="ltr" style="text-align:right"></div>
+        <div><label>البريد الإلكتروني <span class="req">*</span></label><input type="email" name="clientEmail" required dir="ltr" style="text-align:right"></div>
       </div>
     </section>
 
@@ -115,7 +115,7 @@ button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 22px
       <h2><span class="n">2</span> نوع الفيديو</h2>
       <p class="sub">اختار القالب الأقرب لهدفك.</p>
       <div class="tpl" id="tpl">
-        <label class="opt-card on"><input type="radio" name="template" value="product-ad" checked><div class="ic">🛍️</div><b>إعلان منتج</b><span>عرض منتج بصورته وسعره</span></label>
+        <label class="opt-card on"><input type="radio" name="template" value="product-ad" checked><div class="ic">🛍️</div><b>إعلان منتج</b><span>عرض منتج أو خدمة</span></label>
         <label class="opt-card"><input type="radio" name="template" value="discount"><div class="ic">🏷️</div><b>عرض وخصم</b><span>نسبة خصم ومدة وكود</span></label>
         <label class="opt-card"><input type="radio" name="template" value="service"><div class="ic">💡</div><b>شرح خدمة</b><span>نقاط ومزايا بالتتابع</span></label>
       </div>
@@ -145,6 +145,7 @@ button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 22px
             <div><label>التمييز</label><input type="color" name="cAccent" value="#ffc93c"></div>
             <div><label>الخلفية</label><input type="color" name="cBg" value="#fff7ee"></div>
           </div>
+          <label class="chip" style="margin-top:10px;display:inline-flex"><input type="checkbox" name="autoColors">مش متأكد من الألوان، اختاروها من شعاري</label>
         </div>
       </div>
     </section>
@@ -155,15 +156,9 @@ button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 22px
       <div class="grid">
         <div class="full"><label>العنوان الرئيسي <span class="req">*</span></label><input type="text" name="headline" required maxlength="60" placeholder="مثال: قهوتك الصباحية بنكهة جديدة"><div class="hint">حتى 60 حرف</div></div>
         <div class="full"><label>جملة داعمة <span class="opt">(اختياري)</span></label><input type="text" name="subheadline" maxlength="90"></div>
+        <div class="full"><label>معلومات إضافية <span class="opt">(اختياري)</span></label><textarea name="extra" rows="3" style="font-size:13px" placeholder="أي تفاصيل بدك تظهر أو نعرفها، مثل السعر أو رقم التواصل أو العنوان"></textarea></div>
 
-        <div class="cond" data-for="product-ad">
-          <div class="full"><label>صورة المنتج <span class="opt">(PNG بخلفية شفافة أفضل)</span></label>
-            <div class="drop" id="prodDrop"><span>اسحب صورة المنتج هون أو اضغط للاختيار</span></div>
-            <input type="file" id="prodFile" accept="image/png,image/jpeg,image/webp" hidden>
-          </div>
-          <div><label>السعر</label><input type="text" name="price" placeholder="مثال: 49 ₪"></div>
-          <div><label>السعر قبل الخصم <span class="opt">(اختياري)</span></label><input type="text" name="oldPrice" placeholder="مثال: 69 ₪"></div>
-        </div>
+        <div class="cond" data-for="product-ad"></div>
         <div class="cond" data-for="discount">
           <div><label>قيمة الخصم <span class="req">*</span></label><input type="text" name="discount" placeholder="مثال: 30%"></div>
           <div><label>صالح حتى <span class="opt">(اختياري)</span></label><input type="text" name="validUntil" placeholder="مثال: نهاية الشهر"></div>
@@ -182,7 +177,7 @@ button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 22px
         </div>
 
         <div><label>نص زر الدعوة <span class="req">*</span></label><input type="text" name="cta" required maxlength="28" placeholder="اطلب الآن"></div>
-        <div><label>رقم أو رابط للتواصل <span class="req">*</span></label><input type="text" name="contact" required dir="ltr" style="text-align:right" placeholder="059xxxxxxx أو brand.ps"></div>
+        <div><label>رقم أو رابط للتواصل <span class="req">*</span></label><input type="text" name="contact" required dir="ltr" style="text-align:right" placeholder="رقم هاتف أو رابط إنستغرام أو موقع"></div>
       </div>
     </section>
 
@@ -212,7 +207,7 @@ button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 22px
           </div>
         </div>
         <div class="full" id="voiceGenderWrap"><label>نوع الصوت</label>
-          <select name="voiceGender"><option value="any">أي صوت مناسب</option><option value="male">رجالي</option><option value="female">نسائي</option></select>
+          <select name="voiceGender"><option value="any">أي صوت مناسب</option><option value="male">رجل</option><option value="female">امرأة</option></select>
         </div>
         <div class="full"><label>سكربت جاهز <span class="opt">(اختياري، وإذا فاضي بنكتبه نحنا)</span></label><textarea name="script"></textarea></div>
       </div>
@@ -308,32 +303,20 @@ function readLogo(fl){
   const r=new FileReader();r.onload=()=>{logoData=r.result;drop.innerHTML=`<img src="${logoData}" alt=""><span>${fl.name} — اضغط للتغيير</span>`;preview()};r.readAsDataURL(fl);
 }
 
-// product image
-let productData=null;
-const pdrop=$('#prodDrop'),pfile=$('#prodFile');
-pdrop.onclick=()=>pfile.click();
-['dragover','dragenter'].forEach(e=>pdrop.addEventListener(e,ev=>{ev.preventDefault();pdrop.classList.add('over')}));
-['dragleave','drop'].forEach(e=>pdrop.addEventListener(e,ev=>{ev.preventDefault();pdrop.classList.remove('over')}));
-pdrop.addEventListener('drop',ev=>{if(ev.dataTransfer.files[0])readProduct(ev.dataTransfer.files[0])});
-pfile.onchange=()=>pfile.files[0]&&readProduct(pfile.files[0]);
-function readProduct(fl){
-  if(fl.size>6*1024*1024){toast('الصورة كبيرة، الحد 6MB');return}
-  const r=new FileReader();r.onload=()=>{productData=r.result;pdrop.innerHTML=`<img src="${productData}" alt=""><span>${fl.name} — اضغط للتغيير</span>`};r.readAsDataURL(fl);
-}
-
 function build(){
   const t=val('template'),sizes=$$('input[name=size]:checked').map(i=>i.value);
   const points=[1,2,3,4,5].map(i=>val('pt'+i)).filter(Boolean);
   const dialect=val('dialect')==='custom'?val('dialectCustom'):DIAL[val('dialect')];
   return {
     version:1, createdAt:new Date().toISOString(),
-    client:{name:val('clientName'),phone:val('clientPhone'),email:val('clientEmail')},
+    client:{name:val('clientName'),instagram:val('clientIg'),email:val('clientEmail')},
     template:t,
     brand:{name:val('brandName'),logo:logoData,font:val('font'),
+      autoColors:f.elements.autoColors.checked,
       colors:{primary:val('cPrimary'),secondary:val('cSecondary'),accent:val('cAccent'),bg:val('cBg')}},
     content:{headline:val('headline'),subheadline:val('subheadline'),cta:val('cta'),contact:val('contact'),
-      productImage:t==='product-ad'?productData:null,
-      price:val('price'),oldPrice:val('oldPrice'),discount:val('discount'),validUntil:val('validUntil'),code:val('code'),points},
+      extra:val('extra'),
+      discount:val('discount'),validUntil:val('validUntil'),code:val('code'),points},
     language:val('language'),dialect,
     voice:{mode:f.elements.voiceMode.value,gender:val('voiceGender'),script:val('script')},
     sizes,duration:Number(val('duration')),notes:val('notes')
@@ -360,21 +343,39 @@ $('#send').onclick=()=>{
   const full=JSON.stringify(b,null,2);
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([full],{type:'application/json'}));a.download=slug+'.brief.json';a.click();
-  const lite=JSON.parse(full); if(lite.brand.logo)lite.brand.logo='(مرفق بملف الطلب)'; if(lite.content.productImage)lite.content.productImage='(مرفق بملف الطلب)';
+  const lite=JSON.parse(full); if(lite.brand.logo)lite.brand.logo='(مرفق بملف الطلب)'; 
   const lines=[
     'طلب فيديو جديد','',
-    'الاسم: '+b.client.name,'الهاتف: '+b.client.phone,'الإيميل: '+b.client.email,'',
+    'الاسم: '+b.client.name,'إنستغرام: '+b.client.instagram,'الإيميل: '+b.client.email,'',
     'البراند: '+b.brand.name,'القالب: '+TPL[b.template],
     'العنوان: '+b.content.headline, b.content.subheadline?'العنوان الفرعي: '+b.content.subheadline:'',
     b.content.contact?'التواصل: '+b.content.contact:'',
     'اللهجة: '+b.dialect,'المقاسات: '+b.sizes.join(' · '),'المدة: '+b.duration+' ثانية',
-    b.notes?'ملاحظات: '+b.notes:'','',
+    b.content.extra?'معلومات إضافية: '+b.content.extra:'',b.notes?'ملاحظات: '+b.notes:'','',
     'مهم: أرفق هنا ملف الطلب الذي نزل على جهازك ('+slug+'.brief.json) مع الشعار وصور المنتجات.'
   ].filter(x=>x!==undefined&&x!==null);
-  const url='mailto:'+TO+'?subject='+encodeURIComponent('طلب فيديو - '+(b.brand.name||b.client.name))+'&body='+encodeURIComponent(lines.join('\n'));
-  toast('نزّل ملف الطلب، أرفقه بالإيميل اللي رح يفتح');
-  setTimeout(()=>{location.href=url},700);
+  const subj='طلب فيديو - '+(b.brand.name||b.client.name), body=lines.join('\n');
+  const mail='mailto:'+TO+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+  const gm='https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(TO)+'&su='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+  showSend({mail,gm,subj,body,slug});
 };
+
+function showSend(o){
+  let m=$('#sendModal'); if(m)m.remove();
+  m=document.createElement('div'); m.id='sendModal';
+  m.style.cssText='position:fixed;inset:0;background:#0008;display:grid;place-items:center;z-index:99;padding:16px';
+  m.innerHTML=`<div style="background:#fff;color:#222;border-radius:16px;max-width:460px;width:100%;padding:22px;font-family:inherit;line-height:1.7">
+    <h3 style="margin:0 0 6px">خلّصنا، باقي الإرسال</h3>
+    <p style="margin:0 0 12px;font-size:14px">نزل على جهازك ملف الطلب (<b dir="ltr">${o.slug}.brief.json</b>). افتح الإيميل بأحد الطرق، <b>وأرفق الملف</b> مع الشعار، واضغط إرسال.</p>
+    <a class="btn-p" style="display:block;text-align:center;margin:8px 0;text-decoration:none;padding:14px;border-radius:12px" target="_blank" rel="noopener" href="${o.gm}">فتح Gmail</a>
+    <a class="btn-s" style="display:block;text-align:center;margin:8px 0;text-decoration:none;padding:14px;border-radius:12px" href="${o.mail}">فتح تطبيق البريد في جهازي</a>
+    <button type="button" class="btn-s" id="cpMail" style="width:100%;margin:8px 0">نسخ الرسالة وعنوان الإيميل</button>
+    <p style="margin:8px 0 0;font-size:13px;color:#666">العنوان: <b dir="ltr">${TO}</b></p>
+    <button type="button" id="closeSend" style="margin-top:10px;background:none;border:0;color:#666;cursor:pointer">إغلاق</button></div>`;
+  document.body.appendChild(m);
+  $('#closeSend').onclick=()=>m.remove();
+  $('#cpMail').onclick=async()=>{try{await navigator.clipboard.writeText(TO+'\n'+o.subj+'\n\n'+o.body);toast('انسخت')}catch(e){toast('تعذّر النسخ')}};
+}
 syncCards();preview();
 </script>
 </body>
