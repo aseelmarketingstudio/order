@@ -370,10 +370,10 @@ function shrink(src,max=400,q=.75){return new Promise(res=>{const im=new Image()
 function summary(b){return [
   'طلب فيديو جديد','',
   'الاسم: '+b.client.name,'إنستغرام: '+b.client.instagram,'الإيميل: '+b.client.email,'',
-  'البراند: '+b.brand.name,'القالب: '+TPL[b.template],
+  'البراند: '+b.brand.name,'القالب: '+TPL[b.template],'الألوان: '+[b.brand.colors.primary,b.brand.colors.secondary,b.brand.colors.accent,b.brand.colors.bg].join(' · '),b.brand.logo?'الشعار: الزبون رفعه بالفورم (بيبعته على إنستغرام)':'الشعار: ما رفع',
   'العنوان: '+b.content.headline, b.content.subheadline?'العنوان الفرعي: '+b.content.subheadline:null,
   b.content.ending!=='none'&&b.content.cta?'نهاية الفيديو: '+b.content.cta:null,
-  b.content.extra?'معلومات إضافية: '+b.content.extra:null,b.content.photos&&b.content.photos.length?'عدد الصور: '+b.content.photos.length:null,
+  b.content.extra?'معلومات إضافية: '+b.content.extra:null,b.content.photos&&b.content.photos.length?'عدد الصور: '+b.content.photos.length+' (بيبعتها على إنستغرام)':null,
   'اللهجة: '+b.dialect,'المقاسات: '+b.sizes.join(' · '),'المدة: '+b.duration+' ثانية',
   'الموافقة على نشر الفيديو كنموذج: '+(b.publishOk==='yes'?'نعم':'لا'),
   b.notes?'ملاحظات: '+b.notes:null].filter(x=>x!==undefined&&x!==null).join('\n')}
@@ -381,13 +381,11 @@ $('#send').onclick=async()=>{
   if(!validate())return;
   const btn=$('#send'); btn.disabled=true; const old=btn.textContent; btn.textContent='جاري الإرسال...';
   const b=build(); const full=JSON.parse(JSON.stringify(b));
-  if(b.brand.logo) b.brand.logo=await shrink(b.brand.logo,256,.7)||b.brand.logo;
-  b.content.photos=(await Promise.all(b.content.photos.map(x=>shrink(x,400,.65)))).filter(Boolean);
   const slug='order-'+new Date().toISOString().slice(0,16).replace(/[-:T]/g,'');
   const subj='طلب فيديو - '+(b.brand.name||b.client.name);
   const text=summary(b);
   const payload={access_key:KEY,subject:subj,from_name:'فورم الطلبات',name:b.client.name,email:b.client.email,
-    message:text+'\n\n━━━━━━━━━━━━━━━━\n⬇️ من هون لتحت: بيانات تقنية لتجهيز الفيديو، تجاهليها ⬇️\n━━━━━━━━━━━━━━━━\n===BRIEF-JSON===\n'+JSON.stringify(b)};
+    message:text};
   try{
     const r=await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(payload)});
     const j=await r.json(); if(!j.success) throw new Error(j.message||'fail');
@@ -414,7 +412,7 @@ function showDone(){
   m.style.cssText='position:fixed;inset:0;background:#0008;display:grid;place-items:center;z-index:99;padding:16px';
   m.innerHTML=`<div style="background:#fff;color:#222;border-radius:16px;max-width:420px;width:100%;padding:26px;text-align:center;line-height:1.8">
     <div style="font-size:42px">✅</div><h3 style="margin:4px 0">وصل طلبك بنجاح</h3>
-    <p style="margin:0 0 14px;font-size:15px">بنراجعه وبنتواصل معك على إنستغرام أو الإيميل بأقرب وقت.</p>
+    <p style="margin:0 0 10px;font-size:15px">بنراجعه وبنتواصل معك على إنستغرام أو الإيميل بأقرب وقت.</p><p style="margin:0 0 14px;font-size:14px;color:#8a6a52">وإذا رفعتي شعار أو صور، ابعتيهم لنا على إنستغرام <b dir="ltr">@aseel_marketing_studio</b> عشان نجهّز الفيديو.</p>
     <button type="button" class="btn-p" id="okDone" style="padding:12px 28px;border-radius:12px">تمام</button></div>`;
   document.body.appendChild(m); $('#okDone').onclick=()=>m.remove();
 }
