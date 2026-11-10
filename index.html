@@ -371,10 +371,10 @@ async function up1(d){const fd=new FormData();fd.append('file',d);fd.append('upl
 function summary(b){return [
   'طلب فيديو جديد','',
   'الاسم: '+b.client.name,'إنستغرام: '+b.client.instagram,'الإيميل: '+b.client.email,'',
-  'البراند: '+b.brand.name,'القالب: '+TPL[b.template],'الألوان (رئيسي · ثانوي · تمييز · خلفية): '+[b.brand.colors.primary,b.brand.colors.secondary,b.brand.colors.accent,b.brand.colors.bg].join(' · '),b.brand.logo?(b.brand.logoUrl?'الشعار: '+b.brand.logoUrl:'الشعار: الزبون رفعه بس ما انرفع، بيبعته على إنستغرام'):'الشعار: ما رفع',
+  'البراند: '+b.brand.name,'القالب: '+TPL[b.template],'الألوان (رئيسي · ثانوي · تمييز · خلفية): '+[b.brand.colors.primary,b.brand.colors.secondary,b.brand.colors.accent,b.brand.colors.bg].join(' · '),b.brand.logo?(b.brand.logoUrl?'الشعار:\n'+b.brand.logoUrl+'\n':'الشعار: الزبون رفعه بس ما انرفع، بيبعته على إنستغرام'):'الشعار: ما رفع',
   'العنوان: '+b.content.headline, b.content.subheadline?'العنوان الفرعي: '+b.content.subheadline:null,
   b.content.ending!=='none'&&b.content.cta?'نهاية الفيديو: '+b.content.cta:null,
-  b.content.extra?'معلومات إضافية: '+b.content.extra:null,...(b.content.photos&&b.content.photos.length?(b.content.photoUrls&&b.content.photoUrls.length===b.content.photos.length?['الصور:'].concat(b.content.photoUrls):['عدد الصور: '+b.content.photos.length+' (ما انرفعت، بيبعتها على إنستغرام)']):[]),
+  b.content.extra?'معلومات إضافية: '+b.content.extra:null,...(b.content.photos&&b.content.photos.length?(b.content.photoUrls&&b.content.photoUrls.length===b.content.photos.length?['الصور:'].concat(b.content.photoUrls.map(u=>u+'\n')):['عدد الصور: '+b.content.photos.length+' (ما انرفعت، بيبعتها على إنستغرام)']):[]),
   'اللهجة: '+b.dialect,'المقاسات: '+b.sizes.join(' · '),'المدة: '+b.duration+' ثانية',
   'الموافقة على نشر الفيديو كنموذج: '+(b.publishOk==='yes'?'نعم':'لا'),
   b.notes?'ملاحظات: '+b.notes:null].filter(x=>x!==undefined&&x!==null).join('\n')}
