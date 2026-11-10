@@ -235,7 +235,7 @@ button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 22px
 <div class="bar"><div class="in">
   <div class="msg" id="msg">الحقول اللي عليها * مطلوبة</div>
   <div class="btns">
-    <button type="button" class="btn-p" id="send">إرسال الطلب بالإيميل</button>
+    <button type="button" class="btn-p" id="send">إرسال الطلب</button>
   </div>
 </div></div>
 <div class="toast" id="toast"></div>
@@ -391,23 +391,29 @@ $('#send').onclick=async()=>{
   try{
     const r=await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(payload)});
     const j=await r.json(); if(!j.success) throw new Error(j.message||'fail');
-    showDone();
+    resetForm(); showDone();
   }catch(e){
     btn.disabled=false; btn.textContent=old;
-    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(full,null,2)],{type:'application/json'}));a.download=slug+'.brief.json';a.click();
-    const mail='mailto:'+TO+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(text);
-    const gm='https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(TO)+'&su='+encodeURIComponent(subj)+'&body='+encodeURIComponent(text);
-    showSend({mail,gm,subj,body:text,slug});
+    const m=$('#msg'); m.textContent='ما قدرنا نرسل الطلب، تأكدي من الإنترنت وجرّبي مرة ثانية. إجاباتك لسا محفوظة.'; m.className='msg err';
     return;
   }
   btn.disabled=false; btn.textContent=old;
 };
+function resetForm(){
+  f.reset(); logoData=null; photos=[];
+  $('#logoDrop').innerHTML='<span id="logoTxt">اسحب الشعار هون أو اضغط للاختيار</span>';
+  const lf=$('#logoFile'); if(lf)lf.value='';
+  renderPhotos(); syncCards();
+  $$('.bad').forEach(e=>e.classList.remove('bad'));
+  const m=$('#msg'); m.textContent='الحقول اللي عليها * مطلوبة'; m.className='msg';
+  window.scrollTo({top:0});
+}
 function showDone(){
   let m=$('#sendModal'); if(m)m.remove();
   m=document.createElement('div'); m.id='sendModal';
   m.style.cssText='position:fixed;inset:0;background:#0008;display:grid;place-items:center;z-index:99;padding:16px';
   m.innerHTML=`<div style="background:#fff;color:#222;border-radius:16px;max-width:420px;width:100%;padding:26px;text-align:center;line-height:1.8">
-    <div style="font-size:42px">✅</div><h3 style="margin:4px 0">وصلنا طلبك</h3>
+    <div style="font-size:42px">✅</div><h3 style="margin:4px 0">وصل طلبك بنجاح</h3>
     <p style="margin:0 0 14px;font-size:15px">بنراجعه وبنتواصل معك على إنستغرام أو الإيميل بأقرب وقت.</p>
     <button type="button" class="btn-p" id="okDone" style="padding:12px 28px;border-radius:12px">تمام</button></div>`;
   document.body.appendChild(m); $('#okDone').onclick=()=>m.remove();
