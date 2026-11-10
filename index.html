@@ -216,6 +216,17 @@ button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 22px
       </div>
     </section>
 
+    <section class="card">
+      <h2><span class="n">7</span> النشر كنموذج</h2>
+      <p class="sub">بنستخدم الفيديوهات المجانية كنماذج من أعمالنا.</p>
+      <div class="full"><label>هل بتوافق على نشر الفيديو كنموذج موشن جرافيك على صفحتنا؟ <span class="req">*</span></label>
+        <div class="chips" id="consent">
+          <label class="chip"><input type="radio" name="publishOk" value="yes">نعم، موافق</label>
+          <label class="chip"><input type="radio" name="publishOk" value="no">لا</label>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   </form>
@@ -337,7 +348,7 @@ function build(){
       discount:val('discount'),validUntil:val('validUntil'),code:val('code')},
     language:val('language'),dialect,
     voice:{mode:f.elements.voiceMode.value,gender:val('voiceGender'),script:val('script')},
-    sizes,duration:Number(val('duration')),notes:val('notes')
+    sizes,duration:Number(val('duration')),notes:val('notes'),publishOk:val('publishOk')
   };
 }
 function validate(){
@@ -346,6 +357,7 @@ function validate(){
   const t=val('template');
   if(t==='discount'&&!val('discount')){const e=f.elements.discount;e.classList.add('bad');miss.push(e)}
   if(!$$('input[name=size]:checked').length){miss.push($('#sizes'))}
+  if(!val('publishOk')){miss.push($('#consent'))}
   const m=$('#msg');
   if(miss.length){m.textContent='في '+miss.length+' حقول ناقصة، راجعها';m.className='msg err';miss[0].scrollIntoView({behavior:'smooth',block:'center'});return false}
   m.textContent='تمام، البيانات كاملة';m.className='msg';return true;
@@ -363,6 +375,7 @@ function summary(b){return [
   b.content.ending!=='none'&&b.content.cta?'نهاية الفيديو: '+b.content.cta:null,
   b.content.extra?'معلومات إضافية: '+b.content.extra:null,b.content.photos&&b.content.photos.length?'عدد الصور: '+b.content.photos.length:null,
   'اللهجة: '+b.dialect,'المقاسات: '+b.sizes.join(' · '),'المدة: '+b.duration+' ثانية',
+  'الموافقة على نشر الفيديو كنموذج: '+(b.publishOk==='yes'?'نعم':'لا'),
   b.notes?'ملاحظات: '+b.notes:null].filter(x=>x!==undefined&&x!==null).join('\n')}
 $('#send').onclick=async()=>{
   if(!validate())return;
