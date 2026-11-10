@@ -89,8 +89,7 @@ button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 22px
   <main>
 
     <section class="card">
-      <h2><span class="n">1</span> بيانات الزبون</h2>
-      <p class="sub">لنقدر نتواصل معك ونسلّمك الفيديو.</p>
+      <h2 style="margin-bottom:16px"><span class="n">1</span> بيانات الزبون</h2>
       <div class="grid">
         <div><label>الاسم <span class="req">*</span></label><input type="text" name="clientName" required></div>
         <div><label>رابط حسابك على إنستغرام <span class="req">*</span></label><input type="text" name="clientIg" required placeholder="instagram.com/اسم_الحساب" dir="ltr" style="text-align:right"></div>
@@ -118,6 +117,8 @@ button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 22px
           <input type="file" id="logoFile" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden>
         </div>
         <div class="full"><label>ألوان البراند</label>
+          <label class="chip on" style="display:inline-flex;margin-bottom:6px"><input type="checkbox" name="autoColors" checked>خلّي الألوان تنسحب تلقائيًا من شعاري</label>
+          <div class="hint" id="colorHint" style="margin:0 0 12px">ارفعي الشعار وبنطلّع ألوانه تلقائيًا، وبتقدري تعدّليها بنفسك.</div>
           <div class="colors">
             <div><label>الأساسي</label><input type="color" name="cPrimary" value="#ff6a3d"></div>
             <div><label>الثانوي</label><input type="color" name="cSecondary" value="#1f2a44"></div>
@@ -258,8 +259,51 @@ drop.addEventListener('drop',ev=>{if(ev.dataTransfer.files[0])readLogo(ev.dataTr
 file.onchange=()=>file.files[0]&&readLogo(file.files[0]);
 function readLogo(fl){
   if(fl.size>4*1024*1024){toast('الشعار كبير، الحد 4MB');return}
-  const r=new FileReader();r.onload=()=>{logoData=r.result;drop.innerHTML=`<img src="${logoData}" alt=""><span>${fl.name} — اضغط للتغيير</span>`};r.readAsDataURL(fl);
+  const r=new FileReader();r.onload=()=>{logoData=r.result;drop.innerHTML=`<img src="${logoData}" alt=""><span>${fl.name} — اضغط للتغيير</span>`;if(f.elements.autoColors.checked)applyAutoColors()};r.readAsDataURL(fl);
 }
+const hex=(r,g,b)=>'#'+[r,g,b].map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+const mixC=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];
+const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
+function extractPalette(src){return new Promise(res=>{
+  const im=new Image();
+  im.onload=()=>{try{
+    const w0=im.naturalWidth||im.width||200,h0=im.naturalHeight||im.height||200,k=64/Math.max(w0,h0);
+    const c=document.createElement('canvas');c.width=Math.max(1,Math.round(w0*k));c.height=Math.max(1,Math.round(h0*k));
+    const x=c.getContext('2d');x.drawImage(im,0,0,c.width,c.height);
+    const d=x.getImageData(0,0,c.width,c.height).data;
+    const pass=(skipWhite)=>{const m=new Map();let tot=0;
+      for(let i=0;i<d.length;i+=4){
+        const r=d[i],g=d[i+1],b=d[i+2],a=d[i+3];if(a<128)continue;
+        const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/510,sat=mx===mn?0:(mx-mn)/(l>.5?510-mx-mn:mx+mn);
+        if(skipWhite&&l>.92&&sat<.15)continue;
+        const key=(r>>5)<<6|(g>>5)<<3|(b>>5),e=m.get(key)||{n:0,r:0,g:0,b:0};
+        e.n++;e.r+=r;e.g+=g;e.b+=b;m.set(key,e);tot++;
+      }
+      return {m,tot}};
+    let {m,tot}=pass(true); if(tot<10)({m,tot}=pass(false));
+    if(!tot)return res(null);
+    const cand=[...m.values()].map(e=>{const r=e.r/e.n,g=e.g/e.n,b=e.b/e.n,mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/510,sat=mx===mn?0:(mx-mn)/(l>.5?510-mx-mn:mx+mn);return {rgb:[r,g,b],n:e.n,sat,l,score:e.n*(.4+sat)}}).sort((a,b)=>b.score-a.score);
+    const primary=cand.find(e=>e.sat>.25)||cand[0];
+    const used=[primary.rgb];
+    const far=e=>used.every(u=>dist(u,e.rgb)>80);
+    const dark=cand.find(e=>far(e)&&e.l<.4&&e.n>=tot*.02);
+    const secondary=dark?dark.rgb:mixC(primary.rgb,[0,0,0],.55);
+    used.push(secondary);
+    const acc=cand.find(e=>far(e)&&e.sat>.2&&e.l<.85&&e.n>=tot*.02);
+    const accent=acc?acc.rgb:mixC(primary.rgb,[255,255,255],.4);
+    res({primary:hex(...primary.rgb),secondary:hex(...secondary),accent:hex(...accent),bg:hex(...mixC(primary.rgb,[255,255,255],.92))});
+  }catch(e){res(null)}};
+  im.onerror=()=>res(null);im.src=src})}
+async function applyAutoColors(){
+  const hint=$('#colorHint');
+  if(!logoData){hint.textContent='ارفعي الشعار أول وبنطلّع ألوانه تلقائيًا.';return}
+  const pal=await extractPalette(logoData);
+  if(!pal){hint.textContent='ما قدرنا نطلّع ألوان من هالشعار، اختاريها بنفسك.';return}
+  f.elements.cPrimary.value=pal.primary;f.elements.cSecondary.value=pal.secondary;f.elements.cAccent.value=pal.accent;f.elements.cBg.value=pal.bg;
+  hint.textContent='انسحبت الألوان من شعارك، وبتقدري تعدّليها بنفسك.';
+}
+f.elements.autoColors.addEventListener('change',()=>{if(f.elements.autoColors.checked)applyAutoColors();else $('#colorHint').textContent='اختاري الألوان بنفسك.'});
+['cPrimary','cSecondary','cAccent','cBg'].forEach(n=>f.elements[n].addEventListener('input',()=>{f.elements.autoColors.checked=false;syncCards();$('#colorHint').textContent='اخترتي الألوان بنفسك.'}));
 
 let photos=[];
 const phDrop=$('#photoDrop'),phFile=$('#photoFile');
@@ -315,22 +359,22 @@ function summary(b){return [
   'طلب فيديو جديد','',
   'الاسم: '+b.client.name,'إنستغرام: '+b.client.instagram,'الإيميل: '+b.client.email,'',
   'البراند: '+b.brand.name,'القالب: '+TPL[b.template],
-  'العنوان: '+b.content.headline, b.content.subheadline?'العنوان الفرعي: '+b.content.subheadline:'',
-  b.content.ending!=='none'&&b.content.cta?'نهاية الفيديو: '+b.content.cta:'',
-  b.content.extra?'معلومات إضافية: '+b.content.extra:'',b.content.photos&&b.content.photos.length?'عدد الصور: '+b.content.photos.length:'',
+  'العنوان: '+b.content.headline, b.content.subheadline?'العنوان الفرعي: '+b.content.subheadline:null,
+  b.content.ending!=='none'&&b.content.cta?'نهاية الفيديو: '+b.content.cta:null,
+  b.content.extra?'معلومات إضافية: '+b.content.extra:null,b.content.photos&&b.content.photos.length?'عدد الصور: '+b.content.photos.length:null,
   'اللهجة: '+b.dialect,'المقاسات: '+b.sizes.join(' · '),'المدة: '+b.duration+' ثانية',
-  b.notes?'ملاحظات: '+b.notes:''].filter(x=>x!==undefined&&x!==null).join('\n')}
+  b.notes?'ملاحظات: '+b.notes:null].filter(x=>x!==undefined&&x!==null).join('\n')}
 $('#send').onclick=async()=>{
   if(!validate())return;
   const btn=$('#send'); btn.disabled=true; const old=btn.textContent; btn.textContent='جاري الإرسال...';
   const b=build(); const full=JSON.parse(JSON.stringify(b));
-  if(b.brand.logo) b.brand.logo=await shrink(b.brand.logo)||b.brand.logo;
-  b.content.photos=(await Promise.all(b.content.photos.map(x=>shrink(x,560,.7)))).filter(Boolean);
+  if(b.brand.logo) b.brand.logo=await shrink(b.brand.logo,256,.7)||b.brand.logo;
+  b.content.photos=(await Promise.all(b.content.photos.map(x=>shrink(x,400,.65)))).filter(Boolean);
   const slug='order-'+new Date().toISOString().slice(0,16).replace(/[-:T]/g,'');
   const subj='طلب فيديو - '+(b.brand.name||b.client.name);
   const text=summary(b);
   const payload={access_key:KEY,subject:subj,from_name:'فورم الطلبات',name:b.client.name,email:b.client.email,
-    message:text+'\n\n===BRIEF-JSON===\n'+JSON.stringify(b)};
+    message:text+'\n\n━━━━━━━━━━━━━━━━\n⬇️ من هون لتحت: بيانات تقنية لتجهيز الفيديو، تجاهليها ⬇️\n━━━━━━━━━━━━━━━━\n===BRIEF-JSON===\n'+JSON.stringify(b)};
   try{
     const r=await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(payload)});
     const j=await r.json(); if(!j.success) throw new Error(j.message||'fail');
