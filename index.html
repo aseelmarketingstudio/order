@@ -22,6 +22,8 @@ body{background:var(--bg);color:var(--text);font-family:"Cairo",system-ui,sans-s
 .wrap{max-width:1180px;margin:0 auto;padding:32px 20px 120px}
 header.top{display:flex;align-items:center;gap:14px;margin-bottom:28px}
 .mark{width:46px;height:46px;border-radius:14px;background:var(--accent);display:grid;place-items:center;color:#fff;font-weight:800;font-size:22px}
+header.top .brandlogo{margin-right:auto;width:84px;height:84px;border-radius:50%;flex:none;box-shadow:0 4px 14px rgba(96,60,32,.18)}
+@media(max-width:640px){header.top .brandlogo{width:60px;height:60px}}
 header.top h1{font-size:26px;margin:0;font-weight:800}
 header.top p{margin:0;color:var(--mute);font-size:14px}
 .layout{display:block;max-width:760px;margin:0 auto}
@@ -83,6 +85,7 @@ button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 22px
       <h1>طلب فيديو موشن جرافيك</h1>
       <p style="margin-top:6px;font-size:12.5px;color:var(--accent)">ملاحظة: ما بنستخدم موسيقى بالفيديو، بس مؤثرات صوتية وصوت الشرح.</p>
     </div>
+    <img class="brandlogo" src="aseel-logo.png" alt="Aseel Marketing Studio">
   </header>
 
   <form id="f" class="layout" autocomplete="off" novalidate>
